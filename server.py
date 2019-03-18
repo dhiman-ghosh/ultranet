@@ -2,7 +2,7 @@ import os
 import json
 import logging
 
-from flask import *
+from flask import Flask, render_template
 from flask_ask import Ask, context
 
 API = '/api/v1'
