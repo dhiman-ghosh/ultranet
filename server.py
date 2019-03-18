@@ -5,6 +5,8 @@ import logging
 from flask import Flask, render_template
 from flask_ask import Ask, context
 
+import alexa
+
 API = '/api/v1'
 PKG_DIR = os.path.dirname(os.path.realpath(__file__))
 
