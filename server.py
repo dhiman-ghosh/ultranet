@@ -47,15 +47,10 @@ def ask_welcome():
 def ask_fallback():
   return ask_welcome()
 
-@ask.intent('AccessKey')
+@ask.intent('AirQuality')
 def ask_access_key():
   ask_handler = alexa.Alexa(context)
-  return ask_handler.access_key() 
-
-@ask.intent('StockQuery')
-def ask_stock_query(item):
-  ask_handler = alexa.Alexa(context)
-  return ask_handler.stock_query(item)
+  return ask_handler.get_arq() 
 
 @ask.intent('AMAZON.FallbackIntent')
 def default():
