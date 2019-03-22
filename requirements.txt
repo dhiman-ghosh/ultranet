@@ -4,3 +4,4 @@ Flask
 Flask_Ask
 gunicorn
 requests
+paho-mqtt
