@@ -15,7 +15,7 @@ class Alexa:
     
   def get_arq(self):
     arq = cloudmqtt.get_arq()
-    msg = "The current air quality in your surrounding is " + arg + " PPM."
+    msg = "The current air quality in your surrounding is " + arq + " PPM."
     return statement(msg)
 
   def default(self):
