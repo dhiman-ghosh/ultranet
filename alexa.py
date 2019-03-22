@@ -13,7 +13,7 @@ class Alexa:
           you can ask about the air quality."""
     return statement(msg)
     
-  def get_arq():
+  def get_arq(self):
     arq = cloudmqtt.get_arq()
     msg = "The current air quality in your surrounding is " + arg + " PPM."
     return statement(msg)
