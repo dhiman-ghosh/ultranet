@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Smart Home Inventory</title>
+  <title>IdIoT</title>
   <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, minimal-ui">
   <link href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAER0lEQVRYhcWYTWgrVRTHfzNJm1DSNk2bNC21OE3rwhYbXOnjUbOom5KCFG3BloeLIq0IFQSRIoKL1kVxJ3TnqgtFCoLFj3YRniBG4seqFD/RKEl9hmI/DS+ZuS5mJm8yzeSrz74/HC65N3Pu/557z7nnXAmQAc3WOqHW+JUhXeFbNzAAPAz4jb5/gN+AP4Fis4QaWbHX6/U+MzEx8VwkEplob28P5PN5Tk5OOD4+JpfLkU6nyWQyR4VC4QvgQ+AjIN8IIRP2rbP2tQ0NDb08MzPzajgcDqVSKZLJJOl0GiHEZaWSZO2/A7wDvAtc2P5qnaus096WxOVy3VhcXPxhY2NDjI6OCqBZ+Qm46TCP9bfjgBwMBpfW1tYKU1NTVyFilQLwkn3RFThcghwMBl9bX18XiqLcLzJWeb3a5CUSZtvS0nJrdXVVhMPhmsp9Pp+Ix+Nibm5O9PT0NELqhVqkzMFH5+fnz0dGRmoqDQQCIpFICFVVhaZpIp1Oi+Hh4XoJ/Qs8ZiN16QzJiqJ8OT09XZfSlZUVoWmasGJzc7MRK32FHs9KPOwmm4lGozd2dnaqWbIERVGQpPLY2t3dXde3Bp4AnsVh6+SOjo6vx8fH615hPB4XxWJRaJpWktnZ2UYP+Lfcs1IZxvr7+xv2mOXlZXFwcCD29/fF0tJSs173eJlljHbV7Xb/Hy5ej7xl8JCtB+qpYrG++7Czs5OxsbGKY8lkElVV69JjwU17hwz8UYF5RYnFYqJQKAhVVcukWCwKv9/fjIWyQKtJBPRDFap3OYeHh2xtbbG9vY2qqkiShCRJyJectm70mIRM+JpYlfD5fCKbzZZikKZpzVpIGKRkMyBqVEgDrhGl+U0b54GzB0ZHz5PyUJ4g/dysNiFExUStAaSBu4BmWkgDvrmKRvsV0iC+w7JlJqnPHxAZgD2jLfmpDHyGXjVcN06AT8wfVg/LA+81o/GKZ+h94MjkYY9kG+iMrwsX6BVJRZjn6RVqBLFoNCp2d3dFIpEQ+Xy+LDCmUimxt7cnJicnq+qQJEkAb1IjYwT9Gvm0mrJYLFZKW51kYWHB8XtZloXP57uNfkOUVTtOlasfuA1UvNI9Hg+hUKiqd+VyOS4u7HUhyLJMOBz+MZPJPI1ecjvCTqwf+J4a29eItLa2CkVR9mVZfqTCfI6ErK0f+OB+kAkEAiISiXxsLNQ+V00idnmeBvIlq7S1tYnBwcHswMDAi4DXYR7rb+dS2hC3oSgMvAH8UouE2+0WXV1dore39/e+vr630Z9svIauamW07LIpA/1FxA20oSdtI8CTwCQQsYx7AZdpZpfLhcfjwePx4HK57p6env51fn7+69nZWQF4yNBlWkizyb1wYNs66wuZGz2L60A/SyHDSmEgCASMMXPloD9S5dGD6xHwN3BoyB30q+kE/WY3E/iyPKza+1AtL7gU0GzKnRI+a7/9fUj+D6b95f7Gvm8GAAAAAElFTkSuQmCC" rel="shortcut icon">
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
@@ -111,22 +111,17 @@
 </head>
 <body>
   <div class="jumbotron text-center">
-    <h1>UltraNet IoT Services</h1>
+    <h1>Id<font color="red">IoT</font></h1>
     {% if title is defined %}
       <p>{{ title }}</p>
     {% else %}
       <p>Works with alexa, say <i>"Alexa, launch ultranet"</i></p> 
     {% endif %}
   </div>
-  <div class="jumbotron text-center">123</div>
   <!-- Main -->
-  {{main_data|safe}}
+  <div class="jumbotron text-center"><h1>{{ arq }} PPM</h1></div>
   <!-- End of Main -->
   <!-- JS -->
-  <script>
-    $(document).ready(function(){
-      $('[data-toggle="tooltip"]').tooltip(); 
-    });
-  </script>
+  <div class="text-center">&copy; 2019 Rcmore Infotech | All rights reserved</div>
 </body>
 </html>

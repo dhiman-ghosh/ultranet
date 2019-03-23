@@ -1,5 +1,5 @@
 import sys
-import time
+import threading
 import paho.mqtt.client as mqtt
 
 # The callback for when the client receives a CONNACK response from the server.
@@ -16,11 +16,19 @@ def on_message(client, userdata, msg):
     print(msg.topic + " " + val)
     userdata.append(val)
     client.disconnect()
+    
+def on_timeout(client):
+    print("Request timed out!", file=sys.stderr)
+    client.disconnect()
 
-def get_arq():
+def get_arq(timeout=10.0):
     client = mqtt.Client("uclient")
     client.on_connect = on_connect
     client.on_message = on_message
+    
+    
+    timer = threading.Timer(timeout, on_timeout, [client])
+    timer.start()
 
     data = list()
     client.user_data_set(data)
@@ -28,4 +36,8 @@ def get_arq():
     client.connect("m24.cloudmqtt.com", 16448, 60)
 
     client.loop_forever()
-    return data.pop()
+    timer.cancel()
+    try:
+        return data.pop()
+    except IndexError:
+        return 0

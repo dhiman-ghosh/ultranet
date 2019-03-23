@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import cloudmqtt
 
 from flask import Flask, render_template
 from flask_ask import Ask, context
@@ -23,7 +24,9 @@ def setup_logging():
 
 @app.route('/')
 def index():
-  return render_template('default.html')
+  arq_val = cloudmqtt.get_arq(5)
+  return render_template('default.html', arq=arq_val,
+                          title="Air Quality Index")
 
 
 # --------------- API ------------------
