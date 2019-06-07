@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <PubSubClient.h>
+#include <FastLED.h>
 
 /* You can remove the password parameter if you want the AP to be open. */
 const char *ssid = "IdIoT-RHGXHRUR";
@@ -11,7 +12,7 @@ const char* mqtt_req_channel = "urequest";
 const char* mqtt_res_channel = "uresponse";
 const char* mqtt_user = "rhgxhrur";
 const char* mqtt_password = "y6DIhw4y0FRk";
-
+#define NUM_LEDS    10
 // Create an instance of the server
 // specify the port to listen on as an argument
 
@@ -19,10 +20,14 @@ WiFiServer server(80);
 WiFiClient mqtt_client;
 PubSubClient mqtt(mqtt_client);
 
+CRGB leds[NUM_LEDS];
+
 void setup() {
   WiFiClient client;
   WiFi.persistent(false);
   Serial.begin(115200);
+  fill_solid(leds, NUM_LEDS, CRGB::Black);
+  FastLED.show();
   pinMode(LED_BUILTIN, OUTPUT);
   
   IPAddress apIP(192, 168, 4, 1);
@@ -129,6 +134,7 @@ void setup() {
  
   mqtt.setServer(mqtt_server, 16448);
   mqtt.setCallback(callback);
+  displayLEDPattern(15);
 }
 
 String response(String r) {
@@ -162,8 +168,10 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
-  char cstr_cmd[length];
+  char cstr_cmd[length + 1];
+  memset(cstr_cmd, 0, length);
   strncpy(cstr_cmd, (char*)payload, length);
+  cstr_cmd[length] = '\0';
   String command(cstr_cmd);
 
   if (String(topic) != mqtt_req_channel) {
@@ -176,6 +184,25 @@ void callback(char* topic, byte* payload, unsigned int length) {
   if (command == "arq") {
     Serial.println("Processing Air Quality Request...");
     publishAirQuality();
+  } else if (command.startsWith("ledstrip")){
+    char pattern[32];
+    int pattern_enum = 0;
+    int count = 0;
+    char buf[command.length() +1];
+    command.toCharArray(buf, sizeof(buf));
+    char *pch = strtok(buf, " ");
+    while ((pch = strtok (NULL, " ")) != NULL) {
+      count++;
+      if (count == 1) {
+        strcpy(pattern, pch);
+        Serial.print("pch: ");
+        Serial.println(pattern);
+        pattern_enum = atoi(pattern);
+        Serial.print("pattern_enum: ");
+        Serial.println(pattern_enum);
+        displayLEDPattern(pattern_enum);
+      }
+    }
   } else {
     Serial.println("Not Supported!");
   }
