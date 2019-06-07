@@ -18,6 +18,10 @@ class Alexa:
     msg = "The current air quality in your surrounding is " + arq + " PPM."
     return statement(msg)
 
+  def set_ledstrip_pattern(self, pattern):
+    led = cloudmqtt.set_ledstrip_pattern(5, pattern)
+    return statement("I have set the requested mood to " + pattern)
+
   def default(self):
     qs = "Sorry, did not get your query. Do you want me to tell you about the air quality?"
     return question(qs)
