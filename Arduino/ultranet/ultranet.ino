@@ -3,16 +3,16 @@
 #include <PubSubClient.h>
 #include <FastLED.h>
 
-/* You can remove the password parameter if you want the AP to be open. */
-const char *ssid = "IdIoT-RHGXHRUR";
-const char *password = "asdfghjkl";
-
-const char* mqtt_server = "m24.cloudmqtt.com";
-const char* mqtt_req_channel = "urequest";
-const char* mqtt_res_channel = "uresponse";
-const char* mqtt_user = "rhgxhrur";
-const char* mqtt_password = "y6DIhw4y0FRk";
 #define NUM_LEDS    10
+
+extern char* ssid;
+extern char* password;
+extern char* mqtt_server;
+extern char* mqtt_req_channel;
+extern char* mqtt_res_channel;
+extern char* mqtt_user;
+extern char* mqtt_password;
+
 // Create an instance of the server
 // specify the port to listen on as an argument
 
@@ -147,84 +147,6 @@ String response(String r) {
 String response_302() {
   String s = "HTTP/1.1 302 Found\r\nLocation: http://192.168.1.4/auth\r\n\r\n";
   return s;
-}
-
-void publishAirQuality() {
-  int arq = analogRead(A0);
-  char cstr[6];
-  itoa(arq, cstr, 10);
-  Serial.print("Air Quality: ");
-  Serial.print(arq);
-  Serial.print( "PPM");
-  bool ret = mqtt.publish(mqtt_res_channel, cstr, false);
-  if (ret) {
-    Serial.println(" ... Published!");
-  } else {
-    Serial.println(" ... NOT Published!");
-  }
-}
-
-void callback(char* topic, byte* payload, unsigned int length) {
-  Serial.print("Message arrived [");
-  Serial.print(topic);
-  Serial.print("] ");
-  char cstr_cmd[length + 1];
-  memset(cstr_cmd, 0, length);
-  strncpy(cstr_cmd, (char*)payload, length);
-  cstr_cmd[length] = '\0';
-  String command(cstr_cmd);
-
-  if (String(topic) != mqtt_req_channel) {
-    Serial.println("ERR: Unknown message received. Discarded.");
-    return;
-  }
-  
-  Serial.print("Command: ");
-  Serial.println(command);
-  if (command == "arq") {
-    Serial.println("Processing Air Quality Request...");
-    publishAirQuality();
-  } else if (command.startsWith("ledstrip")){
-    char pattern[32];
-    int pattern_enum = 0;
-    int count = 0;
-    char buf[command.length() +1];
-    command.toCharArray(buf, sizeof(buf));
-    char *pch = strtok(buf, " ");
-    while ((pch = strtok (NULL, " ")) != NULL) {
-      count++;
-      if (count == 1) {
-        strcpy(pattern, pch);
-        Serial.print("pch: ");
-        Serial.println(pattern);
-        pattern_enum = atoi(pattern);
-        Serial.print("pattern_enum: ");
-        Serial.println(pattern_enum);
-        displayLEDPattern(pattern_enum);
-      }
-    }
-  } else {
-    Serial.println("Not Supported!");
-  }
-}
-
-void reconnect() {
- // Loop until we're reconnected
- while (!mqtt.connected()) {
- Serial.print("Attempting MQTT connection...");
- // Attempt to connect
- if (mqtt.connect("ESP8266 Client", mqtt_user, mqtt_password)) {
-  Serial.println("connected");
-  // ... and subscribe to topic
-  mqtt.subscribe(mqtt_req_channel);
- } else {
-  Serial.print("failed, rc=");
-  Serial.print(mqtt.state());
-  Serial.println(" try again in 5 seconds");
-  // Wait 5 seconds before retrying
-  delay(5000);
-  }
- }
 }
 
 void loop() {
