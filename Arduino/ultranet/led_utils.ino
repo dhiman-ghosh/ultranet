@@ -1,21 +1,27 @@
+#include <FastLED.h>
+
+#define NUM_LEDS 10
+#define LED_VOLTS 5
+#define FASTLED_HAS_CLOCKLESS
+
+extern const uint8_t ws2812b_data_pin;
+CRGB leds[NUM_LEDS];
+
 enum Color {
-    red = 0,
-    blue = 1,
-    green = 2,
-    aqua = 3,
-    yellow = 4,
-    pink = 5,
-    white = 6,
-    black = 7,
-    gold = 8,
-    orange = 9,
-    magenta = 10,
-    maroon = 11,
-    violet = 12,
-    india = 13,
-    pakistan = 14,
-    rainbow = 15
+    red = 0,     blue = 1,      green = 2,    aqua = 3,      yellow = 4,    pink = 5,    white = 6,    
+    black = 7,   gold = 8,      orange = 9,   magenta = 10,  maroon = 11,   violet = 12,
+    india = 13,  pakistan = 14, rainbow = 15
 };
+
+void setup_led_utils(uint32_t max_power, uint8_t brightness) {
+  Serial.println("Setting up WS2812B...");
+  FastLED.addLeds<WS2812B, ws2812b_data_pin, EOrder::GRB>(leds, NUM_LEDS);
+  FastLED.setBrightness(brightness);
+  FastLED.setMaxPowerInVoltsAndMilliamps(LED_VOLTS, max_power);
+  fill_solid(leds, NUM_LEDS, CRGB::Black);
+  FastLED.show();
+  Serial.println("WS2812B Setup Completed...");
+}
 
 void setPixel(int Pixel, byte red, byte green, byte blue) {
    leds[Pixel].r = red;
@@ -159,12 +165,6 @@ void colorWipe(byte red, byte green, byte blue, int SpeedDelay) {
 }
 
 void displayLEDPattern(int pattern) {
-  // put your setup code here, to run once:
-  FastLED.addLeds<WS2812B, LED_BUILTIN, GRB>(leds, NUM_LEDS);
-  FastLED.setBrightness(96);
-  FastLED.setMaxPowerInVoltsAndMilliamps(5, 400);
-  Serial.println("Setup Completed...");
-
   switch (pattern) {
     case 0: {
       // CRGB::Red

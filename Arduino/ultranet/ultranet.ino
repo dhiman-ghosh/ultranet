@@ -1,17 +1,14 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <PubSubClient.h>
-#include <FastLED.h>
 
-#define NUM_LEDS    10
-
-extern char* ssid;
-extern char* password;
-extern char* mqtt_server;
-extern char* mqtt_req_channel;
-extern char* mqtt_res_channel;
-extern char* mqtt_user;
-extern char* mqtt_password;
+extern const char* ssid;
+extern const char* password;
+extern const char* mqtt_server;
+extern const char* mqtt_req_channel;
+extern const char* mqtt_res_channel;
+extern const char* mqtt_user;
+extern const char* mqtt_password;
 
 // Create an instance of the server
 // specify the port to listen on as an argument
@@ -20,14 +17,11 @@ WiFiServer server(80);
 WiFiClient mqtt_client;
 PubSubClient mqtt(mqtt_client);
 
-CRGB leds[NUM_LEDS];
 
 void setup() {
   WiFiClient client;
   WiFi.persistent(false);
   Serial.begin(115200);
-  fill_solid(leds, NUM_LEDS, CRGB::Black);
-  FastLED.show();
   pinMode(LED_BUILTIN, OUTPUT);
   
   IPAddress apIP(192, 168, 4, 1);
