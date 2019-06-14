@@ -1,4 +1,21 @@
-void callback(char* topic, byte* payload, unsigned int length) {
+#include <WiFiClient.h>
+#include <PubSubClient.h>
+
+extern const char* mqtt_server;
+extern const char* mqtt_req_channel;
+extern const char* mqtt_res_channel;
+extern const char* mqtt_user;
+extern const char* mqtt_password;
+
+WiFiClient mqtt_client;
+extern PubSubClient mqtt(mqtt_client);
+
+void setup_mqtt() {
+  mqtt.setServer(mqtt_server, 16448);
+  mqtt.setCallback(mqtt_callback);
+}
+
+void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
@@ -17,7 +34,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.println(command);
   if (command == "arq") {
     Serial.println("Processing Air Quality Request...");
-    publishAirQuality();
+    air_quality_publish();
   } else if (command.startsWith("ledstrip")){
     char pattern[32];
     int pattern_enum = 0;
@@ -42,7 +59,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
 }
 
-void reconnect() {
+void mqtt_reconnect() {
  // Loop until we're reconnected
  while (!mqtt.connected()) {
  Serial.print("Attempting MQTT connection...");
@@ -59,4 +76,11 @@ void reconnect() {
   delay(5000);
   }
  }
+}
+
+void loop_mqtt() {
+  if (!mqtt.connected()) {
+    mqtt_reconnect();
+  }
+  mqtt.loop();
 }

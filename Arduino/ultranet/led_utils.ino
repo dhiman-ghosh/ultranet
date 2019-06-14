@@ -5,6 +5,9 @@
 #define FASTLED_HAS_CLOCKLESS
 
 extern const uint8_t ws2812b_data_pin;
+extern const uint32_t ws2812b_max_power;
+extern const uint8_t ws2812b_brightness;
+
 CRGB leds[NUM_LEDS];
 
 enum Color {
@@ -13,11 +16,10 @@ enum Color {
     india = 13,  pakistan = 14, rainbow = 15
 };
 
-void setup_led_utils(uint32_t max_power, uint8_t brightness) {
-  Serial.println("Setting up WS2812B...");
+void setup_neopixel() {
   FastLED.addLeds<WS2812B, ws2812b_data_pin, EOrder::GRB>(leds, NUM_LEDS);
-  FastLED.setBrightness(brightness);
-  FastLED.setMaxPowerInVoltsAndMilliamps(LED_VOLTS, max_power);
+  FastLED.setBrightness(ws2812b_brightness);
+  FastLED.setMaxPowerInVoltsAndMilliamps(LED_VOLTS, ws2812b_max_power);
   fill_solid(leds, NUM_LEDS, CRGB::Black);
   FastLED.show();
   Serial.println("WS2812B Setup Completed...");

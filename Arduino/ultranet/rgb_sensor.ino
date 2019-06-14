@@ -1,27 +1,25 @@
 #include <Wire.h>
 #include <Adafruit_TCS34725.h>
 
-/*#define COMMON_ANODE*/
-#define UPPER_VALUE 511
+#define ANALOG_MAX_RESOLUTION_BITS  10
+/*#define COMMON_ANODE
+#define RAW_UPPER_VALUE 511*/
 
-/* Initialise with default values (int time = 2.4ms, gain = 1x) */
-// Adafruit_TCS34725 tcs = Adafruit_TCS34725();
- 
 /* Initialise with specific int time and gain values */
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_700MS, TCS34725_GAIN_4X);
 
-int redPin= D5;
-int greenPin = D6;
-int bluePin = D7;
+// our RGB -> eye-recognized gamma color
+byte gammatable[256];
+int analog_max_level = pow(2, ANALOG_MAX_RESOLUTION_BITS) - 1;
+
+extern const uint8_t tcs34725_red_pin;
+extern const uint8_t tcs34725_green_pin;
+extern const uint8_t tcs34725_blue_pin;
 
 void setup_rgb_sensor() {
-  Serial.begin(9600);
-  pinMode(redPin, OUTPUT);
-  pinMode(greenPin, OUTPUT);
-  pinMode(bluePin, OUTPUT);
-
-  Serial.println(D2);
-  Serial.println(D5);
+  pinMode(tcs34725_red_pin, OUTPUT);
+  pinMode(tcs34725_green_pin, OUTPUT);
+  pinMode(tcs34725_blue_pin, OUTPUT);
    
   if (tcs.begin()) {
   Serial.println("Found TCS34725 sensor!");
@@ -29,51 +27,67 @@ void setup_rgb_sensor() {
   Serial.println("No TCS34725 found ... check your connections");
   while (1);
   }
+
+  tcs.setInterrupt(true);  // turn off LED
+
+  for (int i=0; i<256; i++) {
+    float x = i;
+    x /= 255;
+    x = pow(x, 2.5);
+    x *= 255;
+
+#ifdef COMMON_ANODE
+    gammatable[i] = 255 - x;
+#else
+    gammatable[i] = x;
+#endif
+  }
 }
 
-void setColor(int redValue, int greenValue, int blueValue) {
-  int sub = 0;
-  int max_val = max(redValue, greenValue);
+void rgb_tune_colors(int range, float &red, float &green, float &blue) {
+  if (range > 256) {
+    blue -= 50;
+    green -= 10;
+  }
+}
+
+void rgb_set_color(float redValue, float greenValue, float blueValue) {
+  int sub = 0, range = 255;
+  float max_val = max(redValue, greenValue);
   max_val = max(max_val, blueValue);
 
-  // correction
-  blueValue -= 50;
-  greenValue -=10;
-
-  if (max_val > UPPER_VALUE) {
-      sub = max_val-sub;
-      redValue = min(redValue - sub, 0);
-      greenValue = min(greenValue - sub, 0);
-      blueValue = min(blueValue - sub, 0);
-  }
+  /* correction */
+#ifdef RAW_UPPER_VALUE
+  range = RAW_UPPER_VALUE;
+  rgb_tune_colors(&redValue, &greenValue, &blueValue);
   
-  #ifdef COMMON_ANODE
-    redValue = UPPER_VALUE - redValue;
-    greenValue = UPPER_VALUE - greenValue;
-    blueValue = UPPER_VALUE - blueValue;
-  #endif
+  if (max_val > RAW_UPPER_VALUE) {
+    sub = max_val-sub;
+    redValue = min(redValue - sub, 0);
+    greenValue = min(greenValue - sub, 0);
+    blueValue = min(blueValue - sub, 0);
+  }
 
-  analogWrite(redPin, map(redValue, 0, UPPER_VALUE, 0, 1023));
-  analogWrite(greenPin, map(greenValue, 0, UPPER_VALUE, 0, 1023));
-  analogWrite(bluePin, map(blueValue, 0, UPPER_VALUE, 0, 1023));
+  #ifdef COMMON_ANODE
+    redValue = RAW_UPPER_VALUE - redValue;
+    greenValue = RAW_UPPER_VALUE - greenValue;
+    blueValue = RAW_UPPER_VALUE - blueValue;
+  #endif
+#else
+    redValue = gammatable[(int)redValue];
+    blueValue = gammatable[(int)blueValue];
+    greenValue = gammatable[(int)greenValue];
+#endif
+
+  analogWrite(tcs34725_red_pin, map(redValue, 0, range, 0, analog_max_level));
+  analogWrite(tcs34725_green_pin, map(greenValue, 0, range, 0, analog_max_level));
+  analogWrite(tcs34725_blue_pin, map(blueValue, 0, range, 0, analog_max_level));
 }
 
-/*void loop() {
-  uint16_t r, g, b, c, colorTemp, lux;
- 
-  tcs.getRawData(&r, &g, &b, &c);
-  colorTemp = tcs.calculateColorTemperature(r, g, b);
-  lux = tcs.calculateLux(r, g, b);
-   
-  Serial.print("Color Temp: "); Serial.print(colorTemp, DEC); Serial.print(" K - ");
-  Serial.print("Lux: "); Serial.print(lux, DEC); Serial.print(" - ");
-  Serial.print("R: "); Serial.print(r, DEC); Serial.print(" ");
-  Serial.print("G: "); Serial.print(g, DEC); Serial.print(" ");
-  Serial.print("B: "); Serial.print(b, DEC); Serial.print(" ");
-  Serial.print("C: "); Serial.print(c, DEC); Serial.print(" ");
-  Serial.println(" ");
-
-  setColor(r, g, b);
-  delay(1000);
-  
-}*/
+void rgb_read_and_display() {
+  float red, green, blue;
+  /* atleast 60ms interval required between reads */
+  /* If using tcs.getRawData(), use along with RAW_UPPER_VALUE */
+  tcs.getRGB(&red, &green, &blue);
+  rgb_set_color(red, green, blue);
+}
