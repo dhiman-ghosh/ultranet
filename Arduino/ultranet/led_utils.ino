@@ -10,6 +10,7 @@ extern const uint32_t ws2812b_max_power;
 extern const uint8_t ws2812b_brightness;
 
 CRGB leds[NUM_LEDS];
+uint8_t data[ NUM_LEDS];
 
 enum Color {
     red = 0,     blue = 1,      green = 2,    aqua = 3,      yellow = 4,    pink = 5,    white = 6,    
@@ -22,9 +23,55 @@ void setup_neopixel() {
   FastLED.setBrightness(ws2812b_brightness);
   FastLED.setMaxPowerInVoltsAndMilliamps(LED_VOLTS, ws2812b_max_power);
   //fill_solid(leds, NUM_LEDS, CRGB::Blue);
-  displayLEDPattern(15);
+  displayLEDPattern(13);
   //FastLED.show();
   Serial.println("WS2812B Setup Completed...");
+}
+
+void fill_data_array()
+{
+  static uint8_t startValue = 0;
+  startValue = startValue + 2;
+  
+  uint8_t value = startValue;  
+  for( int i = 0; i < NUM_LEDS; i++) {
+    data[i] = triwave8( value); // convert value to an up-and-down wave
+    value += 7;
+  }
+}
+
+
+CRGBPalette16 gPaletteInd (
+    CRGB::Black, 
+    CRGB::DarkOrange, CRGB::DarkOrange,  CRGB::DarkOrange,  CRGB::DarkOrange, CRGB::DarkOrange,
+    CRGB::White,  CRGB::White, CRGB::White, CRGB::White,  CRGB::White,
+    CRGB::Green,  CRGB::Green, CRGB::Green, CRGB::Green,
+    CRGB::Black
+);
+
+CRGBPalette16 gPalettePak (
+    CRGB::Black,
+    CRGB::White,  CRGB::White, CRGB::White, CRGB::White,  CRGB::White,
+    CRGB::Green,  CRGB::Green, CRGB::Green, CRGB::Green, CRGB::Green,
+    CRGB::Green,  CRGB::Green, CRGB::Green, CRGB::Green,
+    CRGB::Black
+);
+void render_data_with_palette(char pattern)
+{
+  switch(pattern) {
+    case 'i': {
+      for( int i = 0; i < NUM_LEDS; i++) {
+        leds[i] = ColorFromPalette( gPaletteInd, data[i], 128, LINEARBLEND);
+      }
+      break;
+    }
+    case 'p': {
+      for( int i = 0; i < NUM_LEDS; i++) {
+        leds[i] = ColorFromPalette( gPalettePak, data[i], 128, LINEARBLEND);
+      }
+      break;
+    }
+  }
 }
 
 void setPixel(int Pixel, byte red, byte green, byte blue) {
@@ -37,7 +84,7 @@ void colorWave (int SpeedDelay, char pattern) {
   byte *c;
   uint16_t i,j = 0;
   int right_dir = 1;
-  for(j=0; j<256*5; j++) {
+  for(j=0; j<256; j++) {
     for(i=0; i<= NUM_LEDS; i++) {
       c=Wheel((((i * 256 / NUM_LEDS) + j) & 255), right_dir, pattern);
       if (right_dir) {
@@ -237,25 +284,20 @@ void displayLEDPattern(int pattern) {
       break;
     }
     case 13: {
-     // while (1) 
-     {
-        colorWave(10, 'i');
-      }
+      fill_data_array();
+      render_data_with_palette('i');   
+      // colorWave(10, 'i');
       break;
     }
     case 14: {
-     // while (1) 
-     {
-       colorWave(10, 'p');
-      }
+      fill_data_array();
+      render_data_with_palette('p');   
+      // colorWave(10, 'p');
       break;
     }
     case 15: {
-      //while (1) 
-      {
        Serial.println("Setting it to rainbow...");
        colorWave(10, 'r');
-      }
       break;
     }
     default:
