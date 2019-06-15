@@ -8,8 +8,6 @@ WiFiServer server(80);
 void setup_wifi() {
   WiFiClient client;
   WiFi.persistent(false);
-  Serial.begin(115200);
-  pinMode(LED_BUILTIN, OUTPUT);
   
   IPAddress apIP(192, 168, 4, 1);
   
@@ -34,10 +32,10 @@ void setup_wifi() {
       delay(1);
     }
 
-    Serial.print("Remote IP: ");
+    /*Serial.print("Remote IP: ");
     Serial.println(client.remoteIP());
     Serial.print("Remote Port: ");
-    Serial.println(client.remotePort());
+    Serial.println(client.remotePort());*/
 
     // Wait until the client sends some data
     Serial.println("New Client");

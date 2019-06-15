@@ -2,11 +2,12 @@
 #include <Adafruit_TCS34725.h>
 
 #define ANALOG_MAX_RESOLUTION_BITS  10
+//#define RGB_DEBUG
 /*#define COMMON_ANODE
 #define RAW_UPPER_VALUE 511*/
 
 /* Initialise with specific int time and gain values */
-Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_700MS, TCS34725_GAIN_4X);
+Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_154MS, TCS34725_GAIN_4X);
 
 // our RGB -> eye-recognized gamma color
 byte gammatable[256];
@@ -49,17 +50,32 @@ void rgb_tune_colors(int range, float &red, float &green, float &blue) {
     blue -= 50;
     green -= 10;
   }
+  else {
+    if (red > green) {
+      if (red > blue) {
+        red = 255;
+      } else {
+        blue = 255;
+      }
+    } else {
+      if (green > blue) {
+        green = 255;
+      } else {
+        blue = 255;
+      }
+    }
+  }
 }
 
 void rgb_set_color(float redValue, float greenValue, float blueValue) {
   int sub = 0, range = 255;
-  float max_val = max(redValue, greenValue);
-  max_val = max(max_val, blueValue);
 
   /* correction */
 #ifdef RAW_UPPER_VALUE
+  float max_val = max(redValue, greenValue);
+  max_val = max(max_val, blueValue);
   range = RAW_UPPER_VALUE;
-  rgb_tune_colors(&redValue, &greenValue, &blueValue);
+  rgb_tune_colors(range, redValue, greenValue, blueValue);
   
   if (max_val > RAW_UPPER_VALUE) {
     sub = max_val-sub;
@@ -79,6 +95,9 @@ void rgb_set_color(float redValue, float greenValue, float blueValue) {
     greenValue = gammatable[(int)greenValue];
 #endif
 
+#ifdef RGB_DEBUG
+  Serial.println((String)"RGB: " + String(redValue) + (String)" " + String(greenValue) + (String)" " + String(blueValue));
+#endif
   analogWrite(tcs34725_red_pin, map(redValue, 0, range, 0, analog_max_level));
   analogWrite(tcs34725_green_pin, map(greenValue, 0, range, 0, analog_max_level));
   analogWrite(tcs34725_blue_pin, map(blueValue, 0, range, 0, analog_max_level));

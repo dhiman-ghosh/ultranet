@@ -1,6 +1,8 @@
-/* Common */
-extern const char* ssid = "IdIoT-RHGXHRUR";
+/* WLAN */
+extern const char* ssid = "IdIoT-ESP12E";
 extern const char* password = "asdfghjkl";
+
+/* MQTT */
 extern const char* mqtt_server = "m24.cloudmqtt.com";
 extern const char* mqtt_req_channel = "urequest";
 extern const char* mqtt_res_channel = "uresponse";
@@ -11,7 +13,7 @@ extern const char* mqtt_password = "y6DIhw4y0FRk";
 extern const uint8_t airq_analog_pin = A0;
 
 /* WS2812B LED Control */
-extern const uint8_t ws2812b_data_pin = D4;
+extern const uint8_t ws2812b_data_pin = D8;
 extern const uint32_t ws2812b_max_power = 9000; /* mAmp */
 extern const uint8_t ws2812b_brightness = 200; /* 0-255 */
 

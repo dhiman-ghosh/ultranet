@@ -1,6 +1,7 @@
+#define FASTLED_ESP8266_RAW_PIN_ORDER
 #include <FastLED.h>
 
-#define NUM_LEDS 10
+#define NUM_LEDS 132
 #define LED_VOLTS 5
 #define FASTLED_HAS_CLOCKLESS
 
@@ -20,8 +21,9 @@ void setup_neopixel() {
   FastLED.addLeds<WS2812B, ws2812b_data_pin, EOrder::GRB>(leds, NUM_LEDS);
   FastLED.setBrightness(ws2812b_brightness);
   FastLED.setMaxPowerInVoltsAndMilliamps(LED_VOLTS, ws2812b_max_power);
-  fill_solid(leds, NUM_LEDS, CRGB::Black);
-  FastLED.show();
+  //fill_solid(leds, NUM_LEDS, CRGB::Blue);
+  displayLEDPattern(15);
+  //FastLED.show();
   Serial.println("WS2812B Setup Completed...");
 }
 
@@ -59,7 +61,7 @@ byte * Wheel(byte WheelPos, int dir, char pattern) {
           static byte c[3] = {0x00, 0x80, 0x00};
           return c;
         }
-        case 'r': {         
+        case 'r': {
           r[0]=WheelPos * 3;
           r[1]=255 - WheelPos * 3;
           r[2]=0;
@@ -235,25 +237,31 @@ void displayLEDPattern(int pattern) {
       break;
     }
     case 13: {
-      while (1) {
+     // while (1) 
+     {
         colorWave(10, 'i');
       }
       break;
     }
     case 14: {
-      while (1) {
+     // while (1) 
+     {
        colorWave(10, 'p');
       }
       break;
     }
     case 15: {
-      while (1) {
+      //while (1) 
+      {
+       Serial.println("Setting it to rainbow...");
        colorWave(10, 'r');
       }
       break;
     }
     default:
-      fill_solid(leds, NUM_LEDS, CRGB::Black);
+    Serial.println("Setting it to black...");
+      colorWipe(0x00,0x00,0x00, 10);
+      //fill_solid(leds, NUM_LEDS, CRGB::Black);
       break;
   }
   FastLED.show();
