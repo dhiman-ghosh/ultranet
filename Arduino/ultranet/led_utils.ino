@@ -22,9 +22,7 @@ void setup_neopixel() {
   FastLED.addLeds<WS2812B, ws2812b_data_pin, EOrder::GRB>(leds, NUM_LEDS);
   FastLED.setBrightness(ws2812b_brightness);
   FastLED.setMaxPowerInVoltsAndMilliamps(LED_VOLTS, ws2812b_max_power);
-  //fill_solid(leds, NUM_LEDS, CRGB::Blue);
-  displayLEDPattern(13);
-  //FastLED.show();
+  displayLEDPattern(15);
   Serial.println("WS2812B Setup Completed...");
 }
 
@@ -86,7 +84,7 @@ void colorWave (int SpeedDelay, char pattern) {
   int right_dir = 1;
   for(j=0; j<256; j++) {
     for(i=0; i<= NUM_LEDS; i++) {
-      c=Wheel((((i * 256 / NUM_LEDS) + j) & 255), right_dir, pattern);
+      c=Wheel((((i * 256 / NUM_LEDS) + j) & 255), right_dir);
       if (right_dir) {
         setPixel(i, *c, *(c+1), *(c+2));
       } else {
@@ -98,113 +96,42 @@ void colorWave (int SpeedDelay, char pattern) {
   }
 }
 
-byte * Wheel(byte WheelPos, int dir, char pattern) {
-  static byte r[3];
+byte * Wheel(byte WheelPos, int dir) {
+  static byte c[3];
   if (dir == 1) {
     if(WheelPos < 85) {
-      switch (pattern) {
-        case 'i': 
-        case 'p': {
-          static byte c[3] = {0x00, 0x80, 0x00};
-          return c;
-        }
-        case 'r': {
-          r[0]=WheelPos * 3;
-          r[1]=255 - WheelPos * 3;
-          r[2]=0;
-          return r;
-        }
-      }
+     c[0]=WheelPos * 3;
+     c[1]=255 - WheelPos * 3;
+     c[2]=0;
     } else if(WheelPos < 170) {
      WheelPos -= 85;
-     switch (pattern) {
-      case 'i': {
-       static byte c[3] = {0xff, 0xff, 0xff};
-       return c;
-      }
-      case 'p': {
-        static byte c[3] = {0x00, 0x80, 0x00};
-        return c;
-      }
-      case 'r': {
-        r[0]=255 - WheelPos * 3;
-        r[1]=0;
-        r[2]=WheelPos * 3;
-        return r;
-      }
-     }
+     c[0]=255 - WheelPos * 3;
+     c[1]=0;
+     c[2]=WheelPos * 3;
     } else {
      WheelPos -= 170;
-      switch (pattern) {
-       case 'i': {
-        static byte c[3] = {0xff, 0x8c, 0x00};
-        return c;
-       }
-       case 'p': {
-        static byte c[3] = {0xff, 0xff, 0xff};
-        return c;
-      }
-      case 'r': {
-        r[0]=0;
-        r[1]=WheelPos * 3;
-        r[2]=255 - WheelPos * 3;
-        return r;
-      }
-     }
+     c[0]=0;
+     c[1]=WheelPos * 3;
+     c[2]=255 - WheelPos * 3;
     }
   } else {
     if(WheelPos < 85) {
-     switch (pattern) {
-       case 'i': {
-        static byte c[3] = {0xff, 0x8c, 0x00};
-        return c;
-       }
-       case 'p': {
-        static byte c[3] = {0xff, 0xff, 0xff};
-        return c;
-      }
-      case 'r': {
-        r[0]=0;
-        r[1]=WheelPos * 3;
-        r[2]=255 - WheelPos * 3;
-        return r;
-      }
-     }
+     c[0]=0;
+     c[1]=WheelPos * 3;
+     c[2]=255 - WheelPos * 3;
     } else if(WheelPos < 170) {
      WheelPos -= 85;
-     switch (pattern) {
-      case 'i': {
-       static byte c[3] = {0xff, 0xff, 0xff};
-       return c;
-      }
-      case 'p': {
-        static byte c[3] = {0x00, 0x80, 0x00};
-        return c;
-      }
-      case 'r': {
-        r[0]=255 - WheelPos * 3;
-        r[1]=0;
-        r[2]=WheelPos * 3;
-        return r;
-      }
-     }
+     c[0]=255 - WheelPos * 3;
+     c[1]=0;
+     c[2]=WheelPos * 3;
     } else {
      WheelPos -= 170;
-     switch (pattern) {
-        case 'i': 
-        case 'p': {
-          static byte c[3] = {0x00, 0x80, 0x00};
-          return c;
-        }
-        case 'r': {
-          r[0]=WheelPos * 3;
-          r[1]=255 - WheelPos * 3;
-          r[2]=0;
-          return r;
-        }
-      }
+     c[0]=WheelPos * 3;
+     c[1]=255 - WheelPos * 3;
+     c[2]=0;
     }
   }
+  return c;
 }
 
 void colorWipe(byte red, byte green, byte blue, int SpeedDelay) {
@@ -245,7 +172,6 @@ void displayLEDPattern(int pattern) {
     case 5: {
       // CRGB::DeepPink
       colorWipe(0xff,0x14,0x93, 10);
-      //leds[i] = CRGB::Pink;
       break;
     }
     case 6: {
@@ -284,24 +210,31 @@ void displayLEDPattern(int pattern) {
       break;
     }
     case 13: {
-      fill_data_array();
-      render_data_with_palette('i');   
+      for (int j = 0; j < 2000; j++) {
+        fill_data_array();
+        render_data_with_palette('i');
+        FastLED.show();
+        FastLED.delay(30);
+      }
       // colorWave(10, 'i');
       break;
     }
     case 14: {
-      fill_data_array();
-      render_data_with_palette('p');   
+      for (int j = 0; j < 2000; j++) {
+        fill_data_array();
+        render_data_with_palette('p');
+        FastLED.show();
+        FastLED.delay(30);
+      }
       // colorWave(10, 'p');
       break;
     }
     case 15: {
-       Serial.println("Setting it to rainbow...");
        colorWave(10, 'r');
       break;
     }
     default:
-    Serial.println("Setting it to black...");
+      Serial.println("No matching color found. Setting it to black...");
       colorWipe(0x00,0x00,0x00, 10);
       //fill_solid(leds, NUM_LEDS, CRGB::Black);
       break;
