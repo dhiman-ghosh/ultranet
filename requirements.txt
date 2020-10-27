@@ -1,4 +1,4 @@
-cryptography==2.1.4
+cryptography==3.2
 inflect
 Flask
 Flask_Ask
